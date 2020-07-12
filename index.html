@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/5.0.0-alpha1/css/bootstrap.min.css" integrity="sha384-r4NyP46KrjDleawBgD5tp8Y7UzmLA05oM1iAEQ17CSuDqnUK2+k9luXQOfXJCJ4I" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.11"></script>
+    <title>Desafio FortBrasil - Galopeira</title>
+</head>
+
+<body>
+
+<div id="app">
+    <div class="container p-5">
+        <div class="row mb-3">
+            <div class="col-md-6 col-xs-12">
+                <label for="wordsCount" class="form-label">Ei FortBrasil, quantos "Galopeira" você vai tentar hoje?</label>
+                <input type="number" min="1" class="form-control" v-model="wordsCount" name="wordsCount" placeholder="Digite um número inteiro" required>
+            </div>
+            <div class="col-md-6 col-xs-12 p-4">
+                <button v-if="!isGameStarted" @click="startGame" class="btn btn-primary mt-2">
+                    Adicionar campos
+                </button>
+    
+                <button @click="resetGame" class="btn btn-danger mt-2">
+                    reiniciar jogo
+                </button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div v-if="isGameStarted && !showResult">
+                <div v-for="(item, k) in wordList" :value="k" class="mb-3">
+                    <div class="form-group">
+                        <label>
+                            <strong>Palavra</strong>
+                        </label>
+                        <input type="text" class="form-control" v-model="item.word">
+                    </div>
+                </div>
+                <button @click="getFinalScore" class="btn btn-success">
+                    Conferir pontuação
+                </button>
+            </div>
+        </div>
+        
+        <div v-if="showResult" class="alert alert-primary">
+            <ul>
+                <li v-for="(item, k) in wordList" v-bind:key="k" >
+                    <strong>Palavra:</strong> {{ item.word }} | <strong>pontuação:</strong> {{ item.isValid ? item.timeCount : 'Palavra inválida' }}
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data() {
+            return {
+                wordList: [],
+                wordsCount: 1,
+                showAddWordInputsButton: true,
+                showInputs: false,
+                showResult: false,
+                isGameStarted: false
+            }
+        },
+        methods: {
+            startGame() {
+                const wordObject = { 
+                    word: '', 
+                    timeCount: '', 
+                    isValid: false
+                }
+
+                for (let index = 0; index < this.wordsCount; index++) {
+                    this.wordList.push(wordObject)
+                }
+
+                this.isGameStarted = true
+            },
+
+            getFinalScore() {
+                this.wordList.map(item => {
+                    console.log(item.word)
+                    if (this.isValidWord(item.word)) {
+                        item.isValid = true
+                        item.timeCount = this.evaluateTypingTime(item.word)
+                    }
+                    return item
+                })
+
+                this.showResult = true
+            },
+
+            isValidWord(word) {
+                const regex = /^[(galop)e*ira]{9,10000}$/ /* repetidos "e", entre 9 e 10.000 caracteres */
+                return word.match(regex)
+            },
+
+            evaluateTypingTime(word) {
+                const time = word.length / 100
+                return time.toFixed(2)
+            },
+
+            resetGame() {
+                this.wordsCount = 0
+                this.wordList = []
+                this.showResult = false
+                this.isGameStarted = false
+            },
+        }
+    })
+</script>
+</body>
+</html>
